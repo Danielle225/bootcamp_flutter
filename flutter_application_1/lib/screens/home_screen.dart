@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';  // Import de l'écran de connexion
+import 'login_screen.dart';
+import 'signup_screen.dart';  // Import de l'écran d'inscription
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,17 @@ class HomeScreen extends StatelessWidget {
                 );
               },
               child: const Text('Se connecter'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                // Redirige vers l'écran d'inscription
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignupScreen()),
+                );
+              },
+              child: const Text('S\'inscrire'),
             ),
           ],
         ),
