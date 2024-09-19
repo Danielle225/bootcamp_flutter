@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'profile_screen.dart';
 
@@ -5,25 +6,41 @@ class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SignupScreenState createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  // ignore: unused_field
   String _email = '';
   String _password = '';
-  // ignore: unused_field
   String _confirmPassword = '';
+  String _errorMessage = '';
 
-  void _submit() {
+  Future<void> _signup() async {
     if (_formKey.currentState!.validate()) {
-      // Redirige vers l'écran de profil après l'inscription
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ProfileScreen()),
-      );
+      if (_password != _confirmPassword) {
+        setState(() {
+          _errorMessage = 'Les mots de passe ne correspondent pas';
+        });
+        return;
+      }
+
+      try {
+        // Création d'un nouvel utilisateur avec Firebase
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _email,
+          password: _password,
+        );
+        // Redirige vers l'écran de profil après l'inscription
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          _errorMessage = e.message!;
+        });
+      }
     }
   }
 
@@ -39,7 +56,6 @@ class _SignupScreenState extends State<SignupScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // Champ email
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
@@ -51,9 +67,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _email = value!,
+                onChanged: (value) {
+                  _email = value;
+                },
               ),
-              // Champ mot de passe
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Mot de passe'),
                 obscureText: true,
@@ -63,25 +80,30 @@ class _SignupScreenState extends State<SignupScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _password = value!,
+                onChanged: (value) {
+                  _password = value;
+                },
               ),
-              // Champ confirmation de mot de passe
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Confirmer le mot de passe'),
                 obscureText: true,
-                validator: (value) {
-                  if (value != _password) {
-                    return 'Les mots de passe ne correspondent pas';
-                  }
-                  return null;
+                onChanged: (value) {
+                  _confirmPassword = value;
                 },
-                onSaved: (value) => _confirmPassword = value!,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submit,
+                onPressed: _signup,
                 child: const Text('S\'inscrire'),
               ),
+              if (_errorMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    _errorMessage,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
             ],
           ),
         ),
