@@ -59,6 +59,8 @@ flutter:
         - asset: assets/fonts/CustomFont-Bold.ttf
           weight: 700
 
+  sdk: flutter
+  image_picker: ^0.8.7+3 # Assure-toi d'utiliser la dernière version stable
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
