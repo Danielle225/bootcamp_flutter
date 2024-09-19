@@ -1,29 +1,38 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'profile_screen.dart'; // Import de l'écran profil
-import '../widgets/social_login_buttons.dart'; // Import des boutons sociaux
+import 'profile_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  // ignore: unused_field
   String _email = '';
-  // ignore: unused_field
   String _password = '';
+  String _errorMessage = '';
 
-  void _submit() {
+  Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      // Redirige vers l'écran de profil
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ProfileScreen()),
-      );
+      try {
+        // Tentative de connexion avec Firebase
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _email,
+          password: _password,
+        );
+        // Redirige vers l'écran de profil après connexion
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          _errorMessage = e.message!;
+        });
+      }
     }
   }
 
@@ -39,7 +48,6 @@ class _LoginScreenState extends State<LoginScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // Champ email
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
@@ -51,9 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _email = value!,
+                onChanged: (value) {
+                  _email = value;
+                },
               ),
-              // Champ mot de passe
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Mot de passe'),
                 obscureText: true,
@@ -63,16 +72,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _password = value!,
+                onChanged: (value) {
+                  _password = value;
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submit,
+                onPressed: _login,
                 child: const Text('Se connecter'),
               ),
-              const SizedBox(height: 20),
-              const Text('Ou se connecter via'),
-              SocialLoginButtons(), // Boutons sociaux importés
+              if (_errorMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    _errorMessage,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
             ],
           ),
         ),
