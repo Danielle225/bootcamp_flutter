@@ -1,73 +1,45 @@
-import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _ProfileScreenState createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  String _name = 'John Doe';
-  String _status = 'En ligne';
-  final String _profilePic = 'https://via.placeholder.com/150';
-
-  void _logout() {
-    Navigator.pop(context); // Retour à l'écran précédent
+  Future<void> _logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    // Redirige vers l'écran d'accueil après la déconnexion
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil Utilisateur'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: _logout,
+            onPressed: () => _logout(context),
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(_profilePic),
-            ),
+            const Text('Informations utilisateur', style: TextStyle(fontSize: 24)),
             const SizedBox(height: 20),
-            // Champ pour nom utilisateur
-            TextFormField(
-              initialValue: _name,
-              decoration: const InputDecoration(labelText: 'Nom'),
-              onChanged: (value) {
-                setState(() {
-                  _name = value;
-                });
-              },
-            ),
-            // Champ pour statut utilisateur
-            TextFormField(
-              initialValue: _status,
-              decoration: const InputDecoration(labelText: 'Statut'),
-              onChanged: (value) {
-                setState(() {
-                  _status = value;
-                });
-              },
-            ),
+            Text('Email: ${user?.email ?? 'Email inconnu'}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Logique de sauvegarde des informations modifiées
-                if (kDebugMode) {
-                  print('Informations sauvegardées');
-                }
-              },
-              child: const Text('Sauvegarder'),
+              onPressed: () => _logout(context),
+              child: const Text('Déconnexion'),
             ),
           ],
         ),
