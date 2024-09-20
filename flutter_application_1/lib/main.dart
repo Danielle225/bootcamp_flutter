@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/chat_screen.dart'; // Assure-toi que l'import correspond au bon chemin
-import 'pages/ user_profile_screen.dart';  // Assure-toi d'importer l'écran de profil
-
+// import 'pages/user_profile_screen.dart';  // Assure-toi d'importer l'écran de profil, si nécessaire
 
 void main() {
   runApp(const ChatApp());
@@ -18,13 +17,14 @@ class ChatApp extends StatelessWidget {
         primaryColor: const Color(0xFF075E54),
         colorScheme: ColorScheme.fromSwatch().copyWith(
           secondary: const Color(0xFF25D366),
-        ), // Remplace accentColor par colorScheme
+        ),
         fontFamily: 'CustomFont', // Utilise ici le nom de la famille de police que tu as définie
       ),
-      home: const ConversationListScreen(),  // Page d'accueil
-      routes: {
-        '/profile': (context) => UserProfileScreen(),  // Définis la route pour l'écran de profil
-      },
+      home: const ConversationListScreen(), // Page d'accueil
+      // Supprime ou remplace la route pour le profil utilisateur si elle n'est plus nécessaire
+      // routes: {
+      //   '/profile': (context) => UserProfileScreen(), // Si l'écran n'existe plus, retire ceci
+      // },
     );
   }
 }
@@ -42,6 +42,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     {'name': 'Bob', 'image': 'assets/profile2.png', 'message': 'How are you?'},
     {'name': 'Charlie', 'image': 'assets/profile3.png', 'message': 'Let\'s meet tomorrow.'},
     {'name': 'David', 'image': 'assets/profile4.png', 'message': 'I\'m on my way.'},
+    {'name': 'Eve', 'image': 'assets/profile5.png', 'message': 'Can you call me?'},
     {'name': 'Eve', 'image': 'assets/profile5.png', 'message': 'Can you call me?'},
   ];
 
@@ -122,9 +123,11 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                     ListTile(
                       leading: CircleAvatar(
                         radius: 28,
-                        backgroundImage: AssetImage(filteredConversations[index]['image']!),
+                        backgroundImage:
+                            AssetImage(filteredConversations[index]['image']!),
                         onBackgroundImageError: (exception, stackTrace) {
-                          print('Image not found for ${filteredConversations[index]['name']}');
+                          print(
+                              'Image not found for ${filteredConversations[index]['name']}');
                         },
                       ),
                       title: Text(
@@ -145,7 +148,8 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                           MaterialPageRoute(
                             builder: (context) => ChatScreen(
                               userName: filteredConversations[index]['name']!,
-                              profileImage: filteredConversations[index]['image']!,
+                              profileImage:
+                                  filteredConversations[index]['image']!,
                             ),
                           ),
                         );
